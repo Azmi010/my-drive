@@ -6,7 +6,7 @@ import type { Prisma } from "@prisma/client";
 import { PrismaService } from "../../prisma/prisma.service";
 import { MinioService } from "../storage/minio.service";
 import type { UpdateFileDto } from "./dto/update-file.dto";
-import type { ListFilesQueryDto } from "./dto/list-files.query";
+import type { ListFilesQueryDto } from "./dto/list-files.dto";
 
 @Injectable()
 export class FilesService {

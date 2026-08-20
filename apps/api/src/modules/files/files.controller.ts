@@ -21,7 +21,7 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CurrentUser } from "../auth/current-user.decorator";
 import type { AuthUser } from "../auth/interfaces/auth-user.interface";
 import { FilesService } from "./files.service";
-import { ListFilesQueryDto } from "./dto/list-files.query";
+import { ListFilesQueryDto } from "./dto/list-files.dto";
 import { UpdateFileDto } from "./dto/update-file.dto";
 import { UploadFileDto } from "./dto/upload-file.dto";
 

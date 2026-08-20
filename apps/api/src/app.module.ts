@@ -8,6 +8,7 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { CleanupModule } from "./modules/cleanup/cleanup.module";
 import { FilesModule } from "./modules/files/files.module";
+import { FoldersModule } from "./modules/folders/folders.module";
 import { StorageModule } from "./modules/storage/storage.module";
 import configuration from "./config/configuration";
 
@@ -19,6 +20,7 @@ import configuration from "./config/configuration";
     StorageModule,
     AuthModule,
     FilesModule,
+    FoldersModule,
     CleanupModule,
   ],
   controllers: [AppController],
