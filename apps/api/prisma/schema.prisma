@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  files   File[]
+  folders Folder[]
+
+  @@map("users")
+}
+
+model Folder {
+  id             String    @id @default(cuid())
+  name           String
+  starred        Boolean   @default(false)
+  deleted        Boolean   @default(false)
+  deletedAt      DateTime?
+  parentFolderId String?
+  ownerId        String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  parent   Folder?  @relation("FolderHierarchy", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  children Folder[] @relation("FolderHierarchy")
+  files    File[]
+  owner    User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, parentFolderId])
+  @@index([ownerId, deleted])
+  @@map("folders")
+}
+
+model File {
+  id             String    @id @default(cuid())
+  name           String
+  mimeType       String
+  size           BigInt    @default(0)
+  storageKey     String    @unique
+  extension      String?
+  starred        Boolean   @default(false)
+  deleted        Boolean   @default(false)
+  deletedAt      DateTime?
+  parentFolderId String?
+  ownerId        String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  parentFolder Folder? @relation(fields: [parentFolderId], references: [id], onDelete: Cascade)
+  owner        User    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId, parentFolderId])
+  @@index([ownerId, deleted])
+  @@map("files")
+}
