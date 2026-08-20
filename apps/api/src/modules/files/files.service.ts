@@ -1,12 +1,20 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  PayloadTooLargeException,
+} from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import * as path from "node:path";
 import type { Prisma } from "@prisma/client";
 
 import { PrismaService } from "../../prisma/prisma.service";
 import { MinioService } from "../storage/minio.service";
+import { isTextMime, previewKind, resolveMimeType } from "../../common/utils/mime-types";
 import type { UpdateFileDto } from "./dto/update-file.dto";
 import type { ListFilesQueryDto } from "./dto/list-files.dto";
+
+const TEXT_PREVIEW_MAX_BYTES = 5 * 1024 * 1024;
 
 @Injectable()
 export class FilesService {
@@ -94,9 +102,32 @@ export class FilesService {
 
   async preview(userId: string, fileId: string) {
     const file = await this.assertFileOwned(userId, fileId);
+    const mimeType = resolveMimeType(file.extension, file.mimeType);
     const url = await this.minio.presignedUrl(file.storageKey);
 
-    return { file, url };
+    return { file, url, mimeType, kind: previewKind(mimeType) };
+  }
+
+  async content(userId: string, fileId: string) {
+    const file = await this.assertFileOwned(userId, fileId);
+    const mimeType = resolveMimeType(file.extension, file.mimeType);
+
+    if (!isTextMime(mimeType)) {
+      throw new BadRequestException("File berformat bukan teks/code");
+    }
+
+    if (file.size > TEXT_PREVIEW_MAX_BYTES) {
+      throw new PayloadTooLargeException("File terlalu besar untuk preview teks");
+    }
+
+    const buffer = await this.minio.getBuffer(file.storageKey);
+
+    return {
+      name: file.name,
+      mimeType,
+      content: buffer.toString("utf-8"),
+      size: buffer.byteLength,
+    };
   }
 
   async download(userId: string, fileId: string) {

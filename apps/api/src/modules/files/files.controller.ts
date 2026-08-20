@@ -72,6 +72,11 @@ export class FilesController {
     return this.filesService.preview(user.id, id);
   }
 
+  @Get(":id/content")
+  content(@CurrentUser() user: AuthUser, @Param("id") id: string) {
+    return this.filesService.content(user.id, id);
+  }
+
   @Get(":id/download")
   async download(@CurrentUser() user: AuthUser, @Param("id") id: string, @Res() res: Response) {
     const { stream, size, name, mimeType } = await this.filesService.download(user.id, id);

@@ -121,10 +121,10 @@ my-drive/
 
 ### Phase 6: File Preview (Backend)
 
-- [ ] **6.1** Preview endpoint (generate signed URL + return)
-- [ ] **6.2** Detect MIME type dari file extension
-- [ ] **6.3** Text/Code preview endpoint (fetch content → return string)
-- [ ] **6.4** PDF preview endpoint (signed URL)
+- [x] **6.1** Preview endpoint (generate signed URL + return)
+- [x] **6.2** Detect MIME type dari file extension
+- [x] **6.3** Text/Code preview endpoint (fetch content → return string)
+- [x] **6.4** PDF preview endpoint (signed URL)
 
 ### Phase 7: Frontend - Core UI
 

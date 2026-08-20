@@ -40,6 +40,17 @@ export class MinioService implements OnModuleInit {
     return this.client.getObject(this.bucket, key);
   }
 
+  async getBuffer(key: string): Promise<Buffer> {
+    const stream = await this.getObject(key);
+    const chunks: Buffer[] = [];
+
+    return new Promise<Buffer>((resolve, reject) => {
+      stream.on("data", (chunk: Buffer) => chunks.push(chunk));
+      stream.on("end", () => resolve(Buffer.concat(chunks)));
+      stream.on("error", reject);
+    });
+  }
+
   statObject(key: string) {
     return this.client.statObject(this.bucket, key);
   }
