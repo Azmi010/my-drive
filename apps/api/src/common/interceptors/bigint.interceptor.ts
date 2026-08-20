@@ -3,6 +3,10 @@ import type { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
 function serialize(value: unknown): unknown {
+  if (value instanceof Date) {
+    return value;
+  }
+
   if (typeof value === "bigint") {
     return Number(value);
   }

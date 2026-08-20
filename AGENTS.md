@@ -128,31 +128,33 @@ my-drive/
 
 ### Phase 7: Frontend - Core UI
 
-- [ ] **7.1** Layout: sidebar + main content area
-- [ ] **7.2** Sidebar: navigation (My Drive, Starred, Trash)
-- [ ] **7.3** Breadcrumb component
-- [ ] **7.4** File/folder grid view
-- [ ] **7.5** File/folder list view
-- [ ] **7.6** Toggle grid/list button
-- [ ] **7.7** Context menu (right-click: rename, move, delete, star, download)
-- [ ] **7.8** Upload button + drag-drop zone
-- [ ] **7.9** Upload progress indicator
-- [ ] **7.10** Search bar + results page
+- [x] **7.1** Layout: sidebar + main content area
+- [x] **7.2** Sidebar: navigation (My Drive, Starred, Trash)
+- [x] **7.3** Breadcrumb component
+- [x] **7.4** File/folder grid view
+- [x] **7.5** File/folder list view
+- [x] **7.6** Toggle grid/list button
+- [x] **7.7** Context menu (right-click: rename, move, delete, star, download)
+- [x] **7.8** Upload button + drag-drop zone
+- [x] **7.9** Upload progress indicator
+- [x] **7.10** Search bar + results page
 
 ### Phase 8: Frontend - File Operations
 
-- [ ] **8.1** Create folder modal
-- [ ] **8.2** Rename modal
-- [ ] **8.3** Move file/folder modal (folder picker)
-- [ ] **8.4** Delete confirmation modal
+- [x] **8.1** Create folder modal
+- [x] **8.2** Rename modal
+- [x] **8.3** Move file/folder modal (folder picker)
+- [x] **8.4** Delete confirmation modal
 - [ ] **8.5** File preview modal/page
-  - [ ] **8.5.1** Image viewer (zoom, pan)
-  - [ ] **8.5.2** PDF viewer (PDF.js)
-  - [ ] **8.5.3** Video player (HTML5 video)
-  - [ ] **8.5.4** Audio player (HTML5 audio)
-  - [ ] **8.5.5** Text/code viewer (syntax highlight)
+  - [x] **8.5.1** Image viewer (zoom, pan belum)
+  - [x] **8.5.2** PDF viewer (iframe)
+  - [x] **8.5.3** Video player (HTML5 video)
+  - [x] **8.5.4** Audio player (HTML5 audio)
+  - [x] **8.5.5** Text/code viewer (syntax highlight belum)
   - [ ] **8.5.6** Markdown viewer (react-markdown)
-  - [ ] **8.5.7** Unsupported file type → download prompt
+  - [x] **8.5.7** Unsupported file type → download prompt
+  - [ ] **8.5.8** Zoom/pan image viewer (8.5.1 pending)
+  - [ ] **8.5.9** Syntax highlight text viewer (8.5.5 pending)
 
 ### Phase 9: Frontend - Trash & Starred
 

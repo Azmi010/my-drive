@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { TOKEN_COOKIE } from "@/lib/cookies";
 
-const PROTECTED = ["/drive", "/starred", "/trash"];
+const PROTECTED = ["/drive", "/starred", "/trash", "/search"];
 const AUTH_PAGES = ["/login", "/register"];
 
 export function proxy(request: NextRequest) {
@@ -38,5 +38,6 @@ export const config = {
     "/drive/:path*",
     "/starred/:path*",
     "/trash/:path*",
+    "/search/:path*",
   ],
 };
