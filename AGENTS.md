@@ -98,16 +98,16 @@ my-drive/
 
 ### Phase 4: File Module (Backend)
 
-- [ ] **4.1** Install + configure MinIO client
-- [ ] **4.2** Upload endpoint (multipart → MinIO)
-- [ ] **4.3** Download endpoint (stream from MinIO)
-- [ ] **4.4** Generate signed URL for preview
-- [ ] **4.5** Get file metadata endpoint
-- [ ] **4.6** List files endpoint (filter by folder, search)
-- [ ] **4.7** Delete file endpoint (soft delete)
-- [ ] **4.8** Rename file endpoint
-- [ ] **4.9** Move file endpoint (change parent folder)
-- [ ] **4.10** Star/unstar file endpoint
+- [x] **4.1** Install + configure MinIO client
+- [x] **4.2** Upload endpoint (multipart → MinIO)
+- [x] **4.3** Download endpoint (stream from MinIO)
+- [x] **4.4** Generate signed URL for preview
+- [x] **4.5** Get file metadata endpoint
+- [x] **4.6** List files endpoint (filter by folder, search)
+- [x] **4.7** Delete file endpoint (soft delete)
+- [x] **4.8** Rename file endpoint
+- [x] **4.9** Move file endpoint (change parent folder)
+- [x] **4.10** Star/unstar file endpoint
 
 ### Phase 5: Folder Module (Backend)
 
