@@ -6,15 +6,15 @@ Google Drive clone tanpa document editor. Preview-only. Self-hosted homeserver.
 
 ## Tech Stack
 
-| Layer | Tech |
-|-------|------|
-| Frontend | Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui |
-| Backend | NestJS, TypeScript |
-| Database | PostgreSQL |
-| ORM | Prisma |
-| Object Storage | MinIO (S3-compatible) |
-| Auth | Custom email+password, JWT |
-| Monorepo | Turborepo |
+| Layer          | Tech                                                      |
+| -------------- | --------------------------------------------------------- |
+| Frontend       | Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui |
+| Backend        | NestJS, TypeScript                                        |
+| Database       | PostgreSQL                                                |
+| ORM            | Prisma                                                    |
+| Object Storage | MinIO (S3-compatible)                                     |
+| Auth           | Custom email+password, JWT                                |
+| Monorepo       | Turborepo                                                 |
 
 ## Project Structure
 
@@ -78,23 +78,23 @@ my-drive/
 
 ### Phase 2: Database & ORM
 
-- [ ] **2.1** Install Prisma di `apps/api`
-- [ ] **2.2** Define schema: `User`, `File`, `Folder`
-- [ ] **2.3** Run migration + generate client
-- [ ] **2.4** Create Prisma service (NestJS module)
-- [ ] **2.5** Seed script untuk test data
+- [x] **2.1** Install Prisma di `apps/api`
+- [x] **2.2** Define schema: `User`, `File`, `Folder`
+- [x] **2.3** Run migration + generate client
+- [x] **2.4** Create Prisma service (NestJS module)
+- [x] **2.5** Seed script untuk test data
 
 ### Phase 3: Auth Module
 
-- [ ] **3.1** Register endpoint (hash password + save)
-- [ ] **3.2** Login endpoint (validate + return JWT)
-- [ ] **3.3** JWT strategy (passport-jwt)
-- [ ] **3.4** Auth guard (protect routes)
-- [ ] **3.5** `/me` endpoint (get current user)
-- [ ] **3.6** Frontend: register page
-- [ ] **3.7** Frontend: login page
-- [ ] **3.8** Frontend: auth store (zustand)
-- [ ] **3.9** Frontend: protected route wrapper
+- [x] **3.1** Register endpoint (hash password + save)
+- [x] **3.2** Login endpoint (validate + return JWT)
+- [x] **3.3** JWT strategy (passport-jwt)
+- [x] **3.4** Auth guard (protect routes)
+- [x] **3.5** `/me` endpoint (get current user)
+- [x] **3.6** Frontend: register page
+- [x] **3.7** Frontend: login page
+- [x] **3.8** Frontend: auth store (zustand)
+- [x] **3.9** Frontend: protected route wrapper
 
 ### Phase 4: File Module (Backend)
 
@@ -211,11 +211,13 @@ NEXT_PUBLIC_API_URL=http://localhost:4000
 ## API Routes Summary
 
 ### Auth
+
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `GET /api/auth/me`
 
 ### Files
+
 - `GET /api/files?folder_id=&search=`
 - `POST /api/files/upload`
 - `GET /api/files/:id`
@@ -227,6 +229,7 @@ NEXT_PUBLIC_API_URL=http://localhost:4000
 - `POST /api/files/:id/unstar`
 
 ### Folders
+
 - `POST /api/folders`
 - `GET /api/folders/:id`
 - `GET /api/folders/:id/contents`
@@ -237,9 +240,11 @@ NEXT_PUBLIC_API_URL=http://localhost:4000
 - `POST /api/folders/:id/unstar`
 
 ### Trash
+
 - `GET /api/trash`
 - `POST /api/trash/:id/restore`
 - `DELETE /api/trash/:id`
 
 ### Starred
+
 - `GET /api/starred`
