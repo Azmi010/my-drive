@@ -37,7 +37,48 @@ export class CleanupService {
     this.logger.log(`Hard delete selesai: ${removed} file dihapus permanen`);
   }
 
-  @Cron("0 0 1,16 * *")
+  @Cron("0 0 2 1 * *")
+  async hardDeleteTrashedFolders() {
+    const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    const folders = await this.prisma.folder.findMany({
+      where: { deleted: true, deletedAt: { lte: cutoff } },
+      select: { id: true, name: true },
+    });
+
+    let removedFolders = 0;
+    let removedFiles = 0;
+
+    for (const folder of folders) {
+      const affectedIds = await this.collectFolderTreeIds(folder.id);
+      const files = await this.prisma.file.findMany({
+        where: { parentFolderId: { in: affectedIds } },
+        select: { id: true, storageKey: true },
+      });
+
+      await this.prisma.$transaction([
+        this.prisma.file.deleteMany({ where: { id: { in: files.map((f) => f.id) } } }),
+        this.prisma.folder.deleteMany({ where: { id: { in: affectedIds } } }),
+      ]);
+
+      for (const file of files) {
+        await this.minio
+          .removeObject(file.storageKey)
+          .catch((error) =>
+            this.logger.error(`Gagal hapus object MinIO '${file.storageKey}'`, error),
+          );
+      }
+
+      removedFolders += affectedIds.length;
+      removedFiles += files.length;
+    }
+
+    this.logger.log(
+      `Hard delete folder selesai: ${removedFolders} folder, ${removedFiles} file dihapus permanen`,
+    );
+  }
+
+  @Cron("0 0 3 1 * *")
   async cleanupOrphanedObjects() {
     const dbKeys = new Set(
       (await this.prisma.file.findMany({ select: { storageKey: true } })).map(
@@ -63,5 +104,23 @@ export class CleanupService {
     }
 
     this.logger.log(`Cleanup orphan selesai: ${removed} object dihapus`);
+  }
+
+  private async collectFolderTreeIds(rootId: string): Promise<string[]> {
+    const result = [rootId];
+    let frontier = [rootId];
+
+    while (frontier.length > 0) {
+      const children = await this.prisma.folder.findMany({
+        where: { parentFolderId: { in: frontier } },
+        select: { id: true },
+      });
+
+      const childIds = children.map((c) => c.id);
+      result.push(...childIds);
+      frontier = childIds;
+    }
+
+    return result;
   }
 }
