@@ -44,6 +44,10 @@ export class MinioService implements OnModuleInit {
     return this.client.statObject(this.bucket, key);
   }
 
+  listObjects(prefix = "") {
+    return this.client.listObjects(this.bucket, prefix, true);
+  }
+
   removeObject(key: string) {
     return this.client.removeObject(this.bucket, key);
   }
