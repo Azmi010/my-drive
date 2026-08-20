@@ -150,11 +150,11 @@ my-drive/
   - [x] **8.5.2** PDF viewer (iframe)
   - [x] **8.5.3** Video player (HTML5 video)
   - [x] **8.5.4** Audio player (HTML5 audio)
-  - [x] **8.5.5** Text/code viewer (syntax highlight belum)
-  - [ ] **8.5.6** Markdown viewer (react-markdown)
+  - [x] **8.5.5** Text/code viewer (syntax highlight)
+  - [x] **8.5.6** Markdown viewer (react-markdown + remark-gfm)
   - [x] **8.5.7** Unsupported file type → download prompt
-  - [ ] **8.5.8** Zoom/pan image viewer (8.5.1 pending)
-  - [ ] **8.5.9** Syntax highlight text viewer (8.5.5 pending)
+  - [x] **8.5.8** Zoom/pan image viewer (wheel zoom, drag pan, reset)
+  - [x] **8.5.9** Syntax highlight text viewer (react-syntax-highlighter/Prism)
 
 ### Phase 9: Frontend - Trash & Starred
 
