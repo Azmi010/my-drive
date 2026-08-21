@@ -158,11 +158,11 @@ my-drive/
 
 ### Phase 9: Frontend - Trash & Starred
 
-- [ ] **9.1** Trash page (list deleted files/folders)
-- [ ] **9.2** Restore from trash
-- [ ] **9.3** Permanent delete (with confirmation)
-- [ ] **9.4** Starred page (list starred items)
-- [ ] **9.5** Star/unstar toggle on items
+- [x] **9.1** Trash page (list deleted files/folders)
+- [x] **9.2** Restore from trash
+- [x] **9.3** Permanent delete (with confirmation)
+- [x] **9.4** Starred page (list starred items)
+- [x] **9.5** Star/unstar toggle on items
 
 ### Phase 10: Frontend - Refinements
 
@@ -224,6 +224,7 @@ NEXT_PUBLIC_API_URL=http://localhost:4000
 - `POST /api/files/upload`
 - `GET /api/files/:id`
 - `GET /api/files/:id/preview`
+- `GET /api/files/:id/content`
 - `GET /api/files/:id/download`
 - `PATCH /api/files/:id`
 - `DELETE /api/files/:id`
@@ -244,8 +245,10 @@ NEXT_PUBLIC_API_URL=http://localhost:4000
 ### Trash
 
 - `GET /api/trash`
-- `POST /api/trash/:id/restore`
-- `DELETE /api/trash/:id`
+- `POST /api/trash/files/:id/restore`
+- `POST /api/trash/folders/:id/restore`
+- `DELETE /api/trash/files/:id`
+- `DELETE /api/trash/folders/:id`
 
 ### Starred
 

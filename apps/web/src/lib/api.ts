@@ -116,6 +116,24 @@ export const api = {
 
   unstarFile: (id: string) => request<DriveFile>(`/files/${id}/unstar`, { method: "POST" }),
 
+  // Trash
+  listTrash: () => request<{ folders: DriveFolder[]; files: DriveFile[] }>("/trash"),
+
+  restoreTrashFile: (id: string) =>
+    request<DriveFile>(`/trash/files/${id}/restore`, { method: "POST" }),
+
+  restoreTrashFolder: (id: string) =>
+    request<{ restored: number }>(`/trash/folders/${id}/restore`, { method: "POST" }),
+
+  deleteTrashFile: (id: string) =>
+    request<{ deleted: number }>(`/trash/files/${id}`, { method: "DELETE" }),
+
+  deleteTrashFolder: (id: string) =>
+    request<{ folders: number; files: number }>(`/trash/folders/${id}`, { method: "DELETE" }),
+
+  // Starred
+  listStarred: () => request<{ folders: DriveFolder[]; files: DriveFile[] }>("/starred"),
+
   uploadFile: (
     file: File,
     options: { folderId?: string | null; onProgress?: (progress: number) => void } = {},

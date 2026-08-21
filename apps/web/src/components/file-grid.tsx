@@ -11,9 +11,10 @@ interface FileGridProps extends ContextMenuActions {
   items: DriveItem[];
   view: ViewMode;
   onOpen: (item: DriveItem) => void;
+  mode?: "normal" | "trash";
 }
 
-export function FileGrid({ items, view, onOpen, ...actions }: FileGridProps) {
+export function FileGrid({ items, view, onOpen, mode = "normal", ...actions }: FileGridProps) {
   const [menu, setMenu] = useState<{ item: DriveItem; x: number; y: number } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -84,6 +85,8 @@ export function FileGrid({ items, view, onOpen, ...actions }: FileGridProps) {
           onStar={actions.onStar}
           onDelete={actions.onDelete}
           onDownload={actions.onDownload}
+          onRestore={actions.onRestore}
+          mode={mode}
         />
       )}
 

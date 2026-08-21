@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Download, Eye, FolderOpen, Move, Pencil, Star, Trash2 } from "lucide-react";
+import { Download, Eye, FolderOpen, Move, Pencil, RotateCcw, Star, Trash2 } from "lucide-react";
 
 import type { DriveItem } from "@/lib/types";
 
@@ -12,6 +12,7 @@ export interface ContextMenuActions {
   onStar: (item: DriveItem) => void;
   onDelete: (item: DriveItem) => void;
   onDownload?: (item: DriveItem) => void;
+  onRestore?: (item: DriveItem) => void;
 }
 
 interface ContextMenuProps extends ContextMenuActions {
@@ -19,9 +20,17 @@ interface ContextMenuProps extends ContextMenuActions {
   x: number;
   y: number;
   onClose: () => void;
+  mode?: "normal" | "trash";
 }
 
-export function ContextMenu({ item, x, y, onClose, ...actions }: ContextMenuProps) {
+export function ContextMenu({
+  item,
+  x,
+  y,
+  onClose,
+  mode = "normal",
+  ...actions
+}: ContextMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,61 +54,94 @@ export function ContextMenu({ item, x, y, onClose, ...actions }: ContextMenuProp
   const menuX = Math.min(x, window.innerWidth - 220);
   const menuY = Math.min(y, window.innerHeight - 240);
 
-  const items: { label: string; icon: React.ReactNode; danger?: boolean; onClick: () => void }[] = [
-    {
-      label: isFolder ? "Buka" : "Pratinjau",
-      icon: isFolder ? <FolderOpen className="h-4 w-4" /> : <Eye className="h-4 w-4" />,
-      onClick: () => {
-        actions.onOpen(item);
-        onClose();
-      },
-    },
-    {
-      label: starred ? "Batal tandai" : "Tandai",
-      icon: <Star className="h-4 w-4" fill={starred ? "currentColor" : "none"} />,
-      onClick: () => {
-        actions.onStar(item);
-        onClose();
-      },
-    },
-    {
-      label: "Ganti nama",
-      icon: <Pencil className="h-4 w-4" />,
-      onClick: () => {
-        actions.onRename(item);
-        onClose();
-      },
-    },
-    {
-      label: "Pindahkan ke...",
-      icon: <Move className="h-4 w-4" />,
-      onClick: () => {
-        actions.onMove(item);
-        onClose();
-      },
-    },
-    ...(actions.onDownload && !isFolder
+  const items: { label: string; icon: React.ReactNode; danger?: boolean; onClick: () => void }[] =
+    mode === "trash"
       ? [
           {
-            label: "Unduh",
-            icon: <Download className="h-4 w-4" />,
+            label: isFolder ? "Buka" : "Pratinjau",
+            icon: isFolder ? <FolderOpen className="h-4 w-4" /> : <Eye className="h-4 w-4" />,
             onClick: () => {
-              actions.onDownload?.(item);
+              actions.onOpen(item);
+              onClose();
+            },
+          },
+          ...(actions.onRestore
+            ? [
+                {
+                  label: "Pulihkan",
+                  icon: <RotateCcw className="h-4 w-4" />,
+                  onClick: () => {
+                    actions.onRestore?.(item);
+                    onClose();
+                  },
+                },
+              ]
+            : []),
+          {
+            label: "Hapus permanen",
+            danger: true,
+            icon: <Trash2 className="h-4 w-4" />,
+            onClick: () => {
+              actions.onDelete(item);
               onClose();
             },
           },
         ]
-      : []),
-    {
-      label: "Hapus",
-      danger: true,
-      icon: <Trash2 className="h-4 w-4" />,
-      onClick: () => {
-        actions.onDelete(item);
-        onClose();
-      },
-    },
-  ];
+      : [
+          {
+            label: isFolder ? "Buka" : "Pratinjau",
+            icon: isFolder ? <FolderOpen className="h-4 w-4" /> : <Eye className="h-4 w-4" />,
+            onClick: () => {
+              actions.onOpen(item);
+              onClose();
+            },
+          },
+          {
+            label: starred ? "Batal tandai" : "Tandai",
+            icon: <Star className="h-4 w-4" fill={starred ? "currentColor" : "none"} />,
+            onClick: () => {
+              actions.onStar(item);
+              onClose();
+            },
+          },
+          {
+            label: "Ganti nama",
+            icon: <Pencil className="h-4 w-4" />,
+            onClick: () => {
+              actions.onRename(item);
+              onClose();
+            },
+          },
+          {
+            label: "Pindahkan ke...",
+            icon: <Move className="h-4 w-4" />,
+            onClick: () => {
+              actions.onMove(item);
+              onClose();
+            },
+          },
+          ...(actions.onDownload && !isFolder
+            ? [
+                {
+                  label: "Unduh",
+                  icon: <Download className="h-4 w-4" />,
+                  onClick: () => {
+                    actions.onDownload?.(item);
+                    onClose();
+                  },
+                },
+              ]
+            : []),
+          {
+            label: "Hapus",
+            danger: true,
+            icon: <Trash2 className="h-4 w-4" />,
+            onClick: () => {
+              actions.onDelete(item);
+              onClose();
+            },
+          },
+        ];
 
   return (
     <div
