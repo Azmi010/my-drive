@@ -45,7 +45,7 @@ export function DriveItem({
     );
   }
 
-  function handleClick(e: React.MouseEvent) {
+  function handleClick() {
     if (onSelect) {
       onSelect(item);
     }

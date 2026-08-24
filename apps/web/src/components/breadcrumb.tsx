@@ -13,13 +13,10 @@ export function Breadcrumb({ folderId }: { folderId: string | null }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!folderId) {
-      setTree([]);
-      return;
-    }
+    if (!folderId) return;
     let cancelled = false;
-    setLoading(true);
     const timer = window.setTimeout(() => {
+      setLoading(true);
       api
         .getFolderTree(folderId)
         .then((items) => {

@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { Laptop, Moon, Sun } from "lucide-react";
+
+const emptySubscribe = () => () => {};
 
 export function ThemeToggle({
   mode = "desktop",
@@ -11,12 +13,12 @@ export function ThemeToggle({
   mode?: "desktop" | "mobile" | "compact";
   showLabels?: boolean;
 }) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const { theme, setTheme, resolvedTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   if (!mounted) {
     // Skeleton placeholder to prevent layout shift & hydration mismatch

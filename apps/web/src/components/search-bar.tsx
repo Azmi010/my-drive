@@ -7,13 +7,16 @@ import { Search, X } from "lucide-react";
 export function SearchBar({ className = "" }: { className?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("q") || "";
-  const [query, setQuery] = useState(initialQuery);
+  const urlQuery = searchParams.get("q") || "";
+  const [query, setQuery] = useState(urlQuery);
+  const [prevUrlQuery, setPrevUrlQuery] = useState(urlQuery);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    setQuery(searchParams.get("q") || "");
-  }, [searchParams]);
+  // Sync state with URL search params when external changes happen without effect
+  if (urlQuery !== prevUrlQuery) {
+    setPrevUrlQuery(urlQuery);
+    setQuery(urlQuery);
+  }
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
