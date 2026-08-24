@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Folder, TriangleAlert } from "lucide-react";
+import { Folder, Loader2, TriangleAlert } from "lucide-react";
 
 import type { DriveFolder } from "@/lib/types";
 import { errorMessage } from "@/lib/utils";
@@ -13,10 +13,10 @@ interface DialogFormProps {
 }
 
 const inputClass =
-  "w-full rounded-md border border-zinc-300 px-3 py-2 outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900";
+  "w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 text-sm text-zinc-900 shadow-2xs outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:ring-2 focus:ring-zinc-200/50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-600 dark:focus:bg-zinc-900 dark:focus:ring-zinc-800";
 
 const submitClass =
-  "rounded-md bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300";
+  "flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white shadow-xs transition-all hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-200";
 
 export function CreateFolderDialog({
   open,
@@ -43,7 +43,7 @@ export function CreateFolderDialog({
   }
 
   return (
-    <Modal title="Folder baru" open={open} onClose={onClose}>
+    <Modal title="Folder Baru" open={open} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           autoFocus
@@ -52,17 +52,22 @@ export function CreateFolderDialog({
           onChange={(e) => setName(e.target.value)}
           className={inputClass}
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="flex justify-end gap-2">
+        {error && (
+          <p className="rounded-lg bg-red-50 p-2.5 text-xs text-red-600 dark:bg-red-950/40 dark:text-red-400">
+            {error}
+          </p>
+        )}
+        <div className="flex justify-end gap-2.5 pt-2">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="rounded-xl px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             Batal
           </button>
           <button type="submit" disabled={loading || !name.trim()} className={submitClass}>
-            Buat
+            {loading && <Loader2 className="size-4 animate-spin" />}
+            <span>Buat Folder</span>
           </button>
         </div>
       </form>
@@ -96,7 +101,7 @@ export function RenameDialog({
   }
 
   return (
-    <Modal title="Ganti nama" open={open} onClose={onClose}>
+    <Modal title="Ganti Nama" open={open} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           autoFocus
@@ -105,12 +110,16 @@ export function RenameDialog({
           onSelect={(e) => e.currentTarget.select()}
           className={inputClass}
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="flex justify-end gap-2">
+        {error && (
+          <p className="rounded-lg bg-red-50 p-2.5 text-xs text-red-600 dark:bg-red-950/40 dark:text-red-400">
+            {error}
+          </p>
+        )}
+        <div className="flex justify-end gap-2.5 pt-2">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="rounded-xl px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             Batal
           </button>
@@ -119,7 +128,8 @@ export function RenameDialog({
             disabled={loading || !name.trim() || name === initialName}
             className={submitClass}
           >
-            Simpan
+            {loading && <Loader2 className="size-4 animate-spin" />}
+            <span>Simpan</span>
           </button>
         </div>
       </form>
@@ -162,42 +172,51 @@ export function MoveDialog({
   return (
     <Modal title="Pindahkan ke" open={open} onClose={onClose}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="max-h-64 overflow-y-auto rounded-md border border-zinc-200 dark:border-zinc-800">
+        <div className="max-h-64 space-y-1 overflow-y-auto rounded-xl border border-zinc-200 p-1.5 dark:border-zinc-800">
           <button
             type="button"
             onClick={() => setSelected(null)}
-            className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
-              selected === null ? "bg-zinc-100 dark:bg-zinc-800" : ""
+            className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
+              selected === null
+                ? "bg-zinc-100 font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                : "text-zinc-600 dark:text-zinc-400"
             }`}
           >
-            <Folder className="h-4 w-4 text-amber-400" />
-            My Drive
+            <Folder className="size-4 text-amber-500" />
+            <span>My Drive (Utama)</span>
           </button>
           {candidates.map((folder) => (
             <button
               key={folder.id}
               type="button"
               onClick={() => setSelected(folder.id)}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
-                selected === folder.id ? "bg-zinc-100 dark:bg-zinc-800" : ""
+              className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
+                selected === folder.id
+                  ? "bg-zinc-100 font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                  : "text-zinc-600 dark:text-zinc-400"
               }`}
             >
-              <Folder className="h-4 w-4 text-amber-400" />
+              <Folder className="size-4 text-amber-500" />
               <span className="truncate">{folder.name}</span>
             </button>
           ))}
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="flex justify-end gap-2">
+        {error && (
+          <p className="rounded-lg bg-red-50 p-2.5 text-xs text-red-600 dark:bg-red-950/40 dark:text-red-400">
+            {error}
+          </p>
+        )}
+        <div className="flex justify-end gap-2.5 pt-2">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="rounded-xl px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             Batal
           </button>
           <button type="submit" disabled={loading} className={submitClass}>
-            Pindahkan
+            {loading && <Loader2 className="size-4 animate-spin" />}
+            <span>Pindahkan</span>
           </button>
         </div>
       </form>
@@ -228,15 +247,17 @@ export function ConfirmDialog({
   return (
     <Modal title={title} open={open} onClose={onClose}>
       <div className="flex flex-col gap-4">
-        <div className="flex items-start gap-3">
-          <TriangleAlert className="h-5 w-5 shrink-0 text-amber-500" />
-          <p className="text-sm text-zinc-600 dark:text-zinc-300">{message}</p>
+        <div className="flex items-start gap-3.5">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400">
+            <TriangleAlert className="size-5" />
+          </div>
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">{message}</p>
         </div>
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2.5 pt-2">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="rounded-xl px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             Batal
           </button>
@@ -244,9 +265,10 @@ export function ConfirmDialog({
             type="button"
             disabled={loading}
             onClick={handleConfirm}
-            className="rounded-md bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-500 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-red-500 disabled:opacity-50"
           >
-            {confirmLabel}
+            {loading && <Loader2 className="size-4 animate-spin" />}
+            <span>{confirmLabel}</span>
           </button>
         </div>
       </div>

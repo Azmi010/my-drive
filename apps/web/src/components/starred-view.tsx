@@ -1,20 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoaderCircle, RefreshCw, Star } from "lucide-react";
+import { FolderOpen, LayoutGrid, List, RefreshCw, Star } from "lucide-react";
+import { toast } from "sonner";
 
 import { api } from "@/lib/api";
 import type { DriveFile, DriveFolder, DriveItem, ViewMode } from "@/lib/types";
 import { errorMessage, updateDriveItem } from "@/lib/utils";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { ConfirmDialog, MoveDialog, RenameDialog } from "./dialogs";
+import { EmptyState } from "./empty-state";
 import { FileGrid } from "./file-grid";
 import { PreviewModal } from "./preview-modal";
+import { SkeletonView } from "./skeleton";
 
 export function StarredView() {
   const router = useRouter();
   const [items, setItems] = useState<DriveItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<ViewMode>(() =>
     typeof window !== "undefined"
@@ -53,6 +57,20 @@ export function StarredView() {
     return () => window.clearTimeout(timer);
   }, [load]);
 
+  useEffect(() => {
+    localStorage.setItem("mydrive-view", view);
+  }, [view]);
+
+  const shortcuts = useMemo(
+    () => ({
+      v: () => setView((curr) => (curr === "grid" ? "list" : "grid")),
+      r: () => void load(),
+    }),
+    [load],
+  );
+
+  useKeyboardShortcuts(shortcuts);
+
   function openItem(item: DriveItem) {
     if (item.type === "folder") {
       router.push(`/drive?folder=${item.data.id}`);
@@ -73,8 +91,9 @@ export function StarredView() {
     try {
       await target;
       setItems((prev) => prev.filter((i) => i.data.id !== item.data.id));
+      toast.success(`"${item.data.name}" dihapus dari berbintang`);
     } catch (err) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     }
   }
 
@@ -84,6 +103,7 @@ export function StarredView() {
         ? await api.updateFolder(item.data.id, { name })
         : await api.updateFile(item.data.id, { name });
     setItems((prev) => updateDriveItem(prev, item, { name: result.name }));
+    toast.success(`Nama berhasil diubah menjadi "${result.name}"`);
   }
 
   async function openMoveDialog(item: DriveItem) {
@@ -93,7 +113,7 @@ export function StarredView() {
       setMoveFolders(all);
       setAction({ kind: "move", item });
     } catch (err) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setActionLoading(false);
     }
@@ -105,6 +125,7 @@ export function StarredView() {
     } else {
       await api.updateFile(item.data.id, { parentFolderId });
     }
+    toast.success(`"${item.data.name}" berhasil dipindahkan`);
     await load();
   }
 
@@ -117,8 +138,9 @@ export function StarredView() {
         await api.deleteFile(item.data.id);
       }
       setItems((prev) => prev.filter((i) => i.data.id !== item.data.id));
+      toast.success(`"${item.data.name}" dipindahkan ke Sampah`);
     } catch (err) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setActionLoading(false);
     }
@@ -127,9 +149,10 @@ export function StarredView() {
   async function handleDownload(item: DriveItem) {
     if (item.type === "folder") return;
     try {
+      toast.info(`Mengunduh ${item.data.name}...`);
       await api.downloadFile(item.data.id);
     } catch (err) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     }
   }
 
@@ -139,50 +162,73 @@ export function StarredView() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 pb-4 dark:border-zinc-800">
-        <h1 className="flex items-center gap-2 text-lg font-semibold">
-          <Star className="h-5 w-5 text-amber-400" />
-          Berbintang
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200/80 pb-4 dark:border-zinc-800/80">
+        <h1 className="flex items-center gap-2.5 text-base font-bold text-zinc-900 dark:text-zinc-100 sm:text-lg">
+          <Star className="size-5 fill-amber-400 text-amber-400" />
+          <span>Berbintang</span>
         </h1>
-        <div className="flex rounded-lg border border-zinc-200 p-0.5 dark:border-zinc-800">
+
+        <div className="flex items-center rounded-xl border border-zinc-200/80 bg-zinc-100/80 p-0.5 dark:border-zinc-800 dark:bg-zinc-900/80">
           <button
             type="button"
+            aria-label="Tampilan grid"
+            title="Tampilan grid (Tekan 'V')"
             onClick={() => setView("grid")}
-            className={`rounded-md px-3 py-1.5 text-sm ${
-              view === "grid" ? "bg-zinc-200 dark:bg-zinc-700" : "text-zinc-500"
+            className={`rounded-lg p-1.5 transition-all ${
+              view === "grid"
+                ? "bg-white text-zinc-900 shadow-2xs dark:bg-zinc-800 dark:text-zinc-100"
+                : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
             }`}
           >
-            Grid
+            <LayoutGrid className="size-4" />
           </button>
           <button
             type="button"
+            aria-label="Tampilan daftar"
+            title="Tampilan daftar (Tekan 'V')"
             onClick={() => setView("list")}
-            className={`rounded-md px-3 py-1.5 text-sm ${
-              view === "list" ? "bg-zinc-200 dark:bg-zinc-700" : "text-zinc-500"
+            className={`rounded-lg p-1.5 transition-all ${
+              view === "list"
+                ? "bg-white text-zinc-900 shadow-2xs dark:bg-zinc-800 dark:text-zinc-100"
+                : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
             }`}
           >
-            Daftar
+            <List className="size-4" />
           </button>
         </div>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto py-4">
         {loading ? (
-          <div className="flex items-center justify-center gap-2 py-16 text-zinc-400">
-            <LoaderCircle className="h-6 w-6 animate-spin" />
-          </div>
+          <SkeletonView view={view} count={8} />
         ) : error ? (
-          <div className="flex flex-col items-center gap-3 py-16 text-center">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
+            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             <button
               type="button"
               onClick={() => void load()}
-              className="flex items-center gap-2 rounded-md border px-4 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
             >
-              <RefreshCw className="h-4 w-4" />
-              Coba lagi
+              <RefreshCw className="size-3.5" />
+              Coba Lagi
             </button>
           </div>
+        ) : items.length === 0 ? (
+          <EmptyState
+            icon={Star}
+            title="Belum ada item berbintang"
+            description="Tandai file atau folder favorit dengan mengklik ikon bintang untuk akses cepat di halaman ini"
+            action={
+              <button
+                type="button"
+                onClick={() => router.push("/drive")}
+                className="flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-200 sm:text-sm"
+              >
+                <FolderOpen className="size-4" />
+                Buka My Drive
+              </button>
+            }
+          />
         ) : (
           <FileGrid
             items={items}
@@ -219,8 +265,8 @@ export function StarredView() {
       {deleteTarget && (
         <ConfirmDialog
           open
-          title="Hapus item"
-          message={`"${deleteTarget.data.name}" akan dihapus. Lanjutkan?`}
+          title="Hapus Item"
+          message={`"${deleteTarget.data.name}" akan dipindahkan ke Sampah. Lanjutkan?`}
           loading={actionLoading}
           onClose={() => setAction(null)}
           onConfirm={() => handleDelete(deleteTarget)}

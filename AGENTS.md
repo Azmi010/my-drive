@@ -166,12 +166,12 @@ my-drive/
 
 ### Phase 10: Frontend - Refinements
 
-- [ ] **10.1** Loading states (skeleton, spinner)
-- [ ] **10.2** Empty states (no files, no results)
-- [ ] **10.3** Error handling + toast notifications
-- [ ] **10.4** Keyboard shortcuts
-- [ ] **10.5** Responsive design (mobile/tablet/desktop)
-- [ ] **10.6** Dark mode toggle
+- [x] **10.1** Loading states (skeleton, spinner)
+- [x] **10.2** Empty states (no files, no results)
+- [x] **10.3** Error handling + toast notifications
+- [x] **10.4** Keyboard shortcuts
+- [x] **10.5** Responsive design (mobile/tablet/desktop)
+- [x] **10.6** Dark mode toggle
 
 ### Phase 11: Shared Package
 

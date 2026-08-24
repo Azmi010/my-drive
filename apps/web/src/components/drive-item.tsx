@@ -1,6 +1,6 @@
 "use client";
 
-import { Star } from "lucide-react";
+import { MoreVertical, Star } from "lucide-react";
 
 import type { DriveItem, ViewMode } from "@/lib/types";
 import { formatBytes, formatDate } from "@/lib/utils";
@@ -13,6 +13,7 @@ interface DriveItemProps {
   onOpen: (item: DriveItem) => void;
   onContextMenu: (e: React.MouseEvent, item: DriveItem) => void;
   onToggleStar: (item: DriveItem) => void;
+  onSelect?: (item: DriveItem) => void;
 }
 
 export function DriveItem({
@@ -22,51 +23,114 @@ export function DriveItem({
   onOpen,
   onContextMenu,
   onToggleStar,
+  onSelect,
 }: DriveItemProps) {
   const isFolder = item.type === "folder";
   const icon = isFolder ? (
-    <FolderTypeIcon className="h-10 w-10" />
+    <FolderTypeIcon className="size-8 sm:size-10 shrink-0" />
   ) : (
-    <FileTypeIcon file={item.data} className="h-10 w-10" />
+    <FileTypeIcon file={item.data} className="size-8 sm:size-10 shrink-0" />
   );
+
+  function handleTriggerMenu(e: React.MouseEvent) {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    onContextMenu(
+      {
+        preventDefault: () => {},
+        clientX: rect.left,
+        clientY: rect.bottom + 4,
+      } as unknown as React.MouseEvent,
+      item,
+    );
+  }
+
+  function handleClick(e: React.MouseEvent) {
+    if (onSelect) {
+      onSelect(item);
+    }
+  }
 
   if (view === "list") {
     return (
       <div
-        className={`group flex cursor-default items-center gap-3 rounded-lg px-3 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 ${
-          selected ? "bg-zinc-100 dark:bg-zinc-800/70" : ""
+        tabIndex={0}
+        role="button"
+        className={`group flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 outline-none transition-all hover:bg-zinc-100/80 focus-visible:ring-2 focus-visible:ring-zinc-400 dark:hover:bg-zinc-800/60 dark:focus-visible:ring-zinc-600 ${
+          selected ? "bg-zinc-100 dark:bg-zinc-800/80 ring-1 ring-zinc-300 dark:ring-zinc-700" : ""
         }`}
+        onClick={handleClick}
         onDoubleClick={() => onOpen(item)}
         onContextMenu={(e) => onContextMenu(e, item)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onOpen(item);
+          }
+        }}
       >
         <span className="shrink-0">{icon}</span>
-        <span className="min-w-0 flex-1 truncate text-sm">{item.data.name}</span>
-        <span className="hidden w-24 shrink-0 text-right text-xs text-zinc-500 sm:block">
+        <span className="min-w-0 flex-1 truncate text-xs font-medium text-zinc-900 dark:text-zinc-100 sm:text-sm">
+          {item.data.name}
+        </span>
+        <span className="hidden w-24 shrink-0 text-right text-xs text-zinc-400 dark:text-zinc-500 sm:block">
           {isFolder ? "—" : formatBytes(item.data.size)}
         </span>
-        <span className="hidden w-24 shrink-0 text-right text-xs text-zinc-500 md:block">
+        <span className="hidden w-28 shrink-0 text-right text-xs text-zinc-400 dark:text-zinc-500 md:block">
           {formatDate(item.data.updatedAt)}
         </span>
-        <StarToggleButton item={item} onClick={onToggleStar} />
+        <div className="flex items-center gap-1">
+          <StarToggleButton item={item} onClick={onToggleStar} />
+          <button
+            type="button"
+            onClick={handleTriggerMenu}
+            className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+            aria-label="Menu opsi"
+          >
+            <MoreVertical className="size-4" />
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div
-      className={`group relative flex cursor-default flex-col items-center gap-2 rounded-xl border p-4 text-center hover:bg-zinc-100 dark:hover:bg-zinc-800/70 ${
+      tabIndex={0}
+      role="button"
+      className={`group relative flex cursor-pointer flex-col items-center justify-center gap-2.5 rounded-2xl border p-4 text-center outline-none transition-all hover:bg-zinc-100/70 hover:shadow-xs focus-visible:ring-2 focus-visible:ring-zinc-400 dark:hover:bg-zinc-800/50 dark:focus-visible:ring-zinc-600 ${
         selected
-          ? "border-zinc-400 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800/70"
-          : "border-transparent"
+          ? "border-zinc-300 bg-zinc-100 shadow-xs dark:border-zinc-700 dark:bg-zinc-800/80"
+          : "border-zinc-200/70 bg-white dark:border-zinc-800/60 dark:bg-zinc-950/60"
       }`}
+      onClick={handleClick}
       onDoubleClick={() => onOpen(item)}
       onContextMenu={(e) => onContextMenu(e, item)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen(item);
+        }
+      }}
     >
-      <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
+      {/* Top right quick actions */}
+      <div className="absolute right-2 top-2 flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
         <StarToggleButton item={item} onClick={onToggleStar} />
+        <button
+          type="button"
+          onClick={handleTriggerMenu}
+          className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+          aria-label="Menu opsi"
+        >
+          <MoreVertical className="size-4" />
+        </button>
       </div>
-      {icon}
-      <span className="w-full truncate text-sm">{item.data.name}</span>
+
+      <div className="mt-1 flex items-center justify-center">{icon}</div>
+
+      <span className="w-full truncate text-xs font-medium text-zinc-900 dark:text-zinc-100 sm:text-sm">
+        {item.data.name}
+      </span>
     </div>
   );
 }
@@ -87,11 +151,11 @@ function StarToggleButton({
         e.stopPropagation();
         onClick(item);
       }}
-      className={`rounded-md p-1.5 transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-700 ${
+      className={`rounded-lg p-1 transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-700 ${
         starred ? "text-amber-400" : "text-zinc-300 dark:text-zinc-600"
       }`}
     >
-      <Star className="h-4 w-4" fill={starred ? "currentColor" : "none"} />
+      <Star className="size-4" fill={starred ? "currentColor" : "none"} />
     </button>
   );
 }

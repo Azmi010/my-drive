@@ -2,17 +2,23 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Folder } from "lucide-react";
 
 import { api } from "@/lib/api";
 import type { FolderTreeItem } from "@/lib/types";
+import { SkeletonBreadcrumb } from "./skeleton";
 
 export function Breadcrumb({ folderId }: { folderId: string | null }) {
   const [tree, setTree] = useState<FolderTreeItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!folderId) return;
+    if (!folderId) {
+      setTree([]);
+      return;
+    }
     let cancelled = false;
+    setLoading(true);
     const timer = window.setTimeout(() => {
       api
         .getFolderTree(folderId)
@@ -21,6 +27,9 @@ export function Breadcrumb({ folderId }: { folderId: string | null }) {
         })
         .catch(() => {
           if (!cancelled) setTree([]);
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
         });
     }, 0);
     return () => {
@@ -29,32 +38,40 @@ export function Breadcrumb({ folderId }: { folderId: string | null }) {
     };
   }, [folderId]);
 
+  if (loading && folderId) {
+    return <SkeletonBreadcrumb />;
+  }
+
   const crumbs = folderId === null ? [] : tree;
 
   return (
-    <nav className="flex min-w-0 items-center text-sm" aria-label="Breadcrumb">
+    <nav
+      className="flex min-w-0 max-w-full items-center overflow-x-auto py-1 text-sm no-scrollbar"
+      aria-label="Breadcrumb"
+    >
       <Link
         href="/drive"
-        className="truncate rounded px-2 py-1 font-medium text-zinc-900 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800"
+        className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
       >
-        My Drive
+        <Folder className="size-4 text-amber-500" />
+        <span>My Drive</span>
       </Link>
       {crumbs.map((item) => (
-        <span key={item.id} className="flex min-w-0 items-center">
-          <ChevronRight className="h-4 w-4 shrink-0 text-zinc-400" />
+        <div key={item.id} className="flex shrink-0 items-center">
+          <ChevronRight className="size-4 shrink-0 text-zinc-400 dark:text-zinc-600" />
           {item.id === folderId ? (
-            <span className="truncate px-2 py-1 font-medium text-zinc-900 dark:text-zinc-100">
+            <span className="max-w-[160px] truncate px-2 py-1 font-semibold text-zinc-900 dark:text-zinc-100 sm:max-w-[240px]">
               {item.name}
             </span>
           ) : (
             <Link
               href={`/drive?folder=${item.id}`}
-              className="truncate rounded px-2 py-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+              className="max-w-[120px] truncate rounded-lg px-2 py-1 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 sm:max-w-[180px]"
             >
               {item.name}
             </Link>
           )}
-        </span>
+        </div>
       ))}
     </nav>
   );

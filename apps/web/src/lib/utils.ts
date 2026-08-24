@@ -2,7 +2,7 @@ import { ApiError } from "./api";
 import type { DriveFile, DriveFolder, DriveItem } from "./types";
 
 export function formatBytes(size: number): string {
-  if (!size) return "0 B";
+  if (!size || size === 0) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB"];
   const index = Math.min(Math.floor(Math.log(size) / Math.log(1024)), units.length - 1);
   const value = size / Math.pow(1024, index);
@@ -10,7 +10,9 @@ export function formatBytes(size: number): string {
 }
 
 export function formatDate(iso: string): string {
+  if (!iso) return "—";
   const date = new Date(iso);
+  if (isNaN(date.getTime())) return "—";
   return date.toLocaleDateString("id-ID", {
     day: "numeric",
     month: "short",
@@ -19,18 +21,46 @@ export function formatDate(iso: string): string {
 }
 
 export function errorMessage(err: unknown): string {
+  if (!err) return "Terjadi kesalahan yang tidak diketahui";
+
   if (err instanceof ApiError) {
     try {
-      const parsed = JSON.parse(err.message) as { message?: string | string[] };
-      if (Array.isArray(parsed.message)) return parsed.message[0] ?? "Terjadi kesalahan";
-      if (parsed.message) return parsed.message;
+      const parsed = JSON.parse(err.message) as {
+        message?: string | string[];
+        error?: string;
+        statusCode?: number;
+      };
+
+      if (Array.isArray(parsed.message)) {
+        return parsed.message.join(", ") || "Terjadi kesalahan validasi";
+      }
+      if (typeof parsed.message === "string" && parsed.message.trim()) {
+        return parsed.message;
+      }
+      if (parsed.error) {
+        return parsed.error;
+      }
     } catch {
-      // fall through
+      // If parsing fails, use raw message
     }
-    return err.message || "Terjadi kesalahan";
+    if (err.message && err.message.trim()) {
+      return err.message;
+    }
+    return `Kesalahan server (${err.status})`;
   }
-  if (err instanceof Error) return err.message;
-  return "Terjadi kesalahan";
+
+  if (err instanceof Error) {
+    if (err.message.includes("Failed to fetch") || err.message.includes("NetworkError")) {
+      return "Gagal terhubung ke server. Pastikan server backend sedang berjalan.";
+    }
+    return err.message;
+  }
+
+  if (typeof err === "string" && err.trim()) {
+    return err;
+  }
+
+  return "Terjadi kesalahan, silakan coba lagi";
 }
 
 export function updateDriveItem(

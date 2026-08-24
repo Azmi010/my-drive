@@ -9,7 +9,8 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import { api } from "@/lib/api";
 import type { DriveFile, PreviewResponse } from "@/lib/types";
-import { errorMessage } from "@/lib/utils";
+import { errorMessage, formatBytes } from "@/lib/utils";
+import { SkeletonPreview } from "./skeleton";
 
 interface PreviewModalProps {
   file: DriveFile | null;
@@ -56,35 +57,58 @@ export function PreviewModal({ file, onClose }: PreviewModalProps) {
   if (!file) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black/80 p-4 sm:p-8" onClick={onClose}>
-      <div className="mb-3 flex items-center justify-between text-white">
-        <h2 className="truncate text-sm font-medium sm:text-base">{file.name}</h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-md p-2 text-white/80 hover:bg-white/10"
-          aria-label="Tutup"
-        >
-          <X className="h-5 w-5" />
-        </button>
+    <div
+      className="fixed inset-0 z-50 flex flex-col bg-black/85 p-3 backdrop-blur-xs animate-in fade-in-50 duration-200 sm:p-6"
+      onClick={onClose}
+    >
+      <div className="mb-3 flex items-center justify-between gap-4 text-white">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <h2 className="truncate text-sm font-semibold sm:text-base">{file.name}</h2>
+          <span className="shrink-0 rounded-md bg-white/10 px-2 py-0.5 text-xs text-zinc-300">
+            {formatBytes(file.size)}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => api.downloadFile(file.id)}
+            className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/20"
+            title="Unduh file"
+          >
+            <Download className="size-4" />
+            <span className="hidden sm:inline">Unduh</span>
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="Tutup"
+          >
+            <X className="size-5" />
+          </button>
+        </div>
       </div>
 
       <div
-        className="flex min-h-0 flex-1 items-center justify-center overflow-auto rounded-xl bg-zinc-900"
+        className="relative flex min-h-0 flex-1 items-center justify-center overflow-auto rounded-2xl border border-zinc-800 bg-zinc-950/90 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {error ? (
           <ErrorState message={error} onDownload={() => api.downloadFile(file.id)} />
         ) : preview === null ? (
-          <p className="text-sm text-zinc-400">Memuat...</p>
+          <SkeletonPreview />
         ) : preview.kind === "image" ? (
           <ZoomableImage src={preview.url} alt={file.name} />
         ) : preview.kind === "pdf" ? (
-          <iframe src={preview.url} title={file.name} className="h-full w-full" />
+          <iframe src={preview.url} title={file.name} className="h-full w-full rounded-2xl" />
         ) : preview.kind === "video" ? (
-          <video src={preview.url} controls className="max-h-full max-w-full" />
+          <video src={preview.url} controls className="max-h-full max-w-full rounded-xl" autoPlay />
         ) : preview.kind === "audio" ? (
-          <audio src={preview.url} controls className="w-full max-w-lg" />
+          <div className="flex flex-col items-center gap-4 p-8">
+            <div className="size-20 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+              <audio src={preview.url} controls className="w-full max-w-lg" />
+            </div>
+          </div>
         ) : preview.kind === "text" ? (
           <TextContent file={file} preview={preview} content={content} />
         ) : (
@@ -110,162 +134,93 @@ function TextContent({
   content: string | null;
 }) {
   if (content === null) {
-    return <p className="text-sm text-zinc-400">Memuat konten...</p>;
+    return (
+      <div className="flex flex-col items-center gap-2 text-zinc-400">
+        <SkeletonPreview />
+      </div>
+    );
   }
 
   if (isMarkdown(file, preview)) {
     return (
-      <div className="h-full w-full overflow-auto">
-        <div className="markdown-body mx-auto max-w-3xl p-6">
+      <div className="h-full w-full overflow-auto p-4 sm:p-8">
+        <div className="markdown-body mx-auto max-w-3xl rounded-xl bg-zinc-900/60 p-6 text-zinc-100">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
         </div>
       </div>
     );
   }
 
+  const ext = (file.extension ?? file.name.split(".").pop() ?? "").toLowerCase();
+  const language = detectLanguage(ext, preview.mimeType);
+
   return (
-    <div className="h-full w-full overflow-auto">
-      <SyntaxHighlighter
-        language={languageFromExtension(file.extension, preview.mimeType) ?? "text"}
-        style={vscDarkPlus}
-        showLineNumbers
-        customStyle={{ margin: 0, height: "100%", minWidth: "max-content" }}
-      >
-        {content.length > 0 ? content : `(file kosong / tidak bisa dibaca) - ${file.name}`}
-      </SyntaxHighlighter>
+    <div className="h-full w-full overflow-auto p-4 sm:p-6">
+      <div className="mx-auto max-w-4xl overflow-hidden rounded-xl border border-zinc-800">
+        <SyntaxHighlighter
+          language={language}
+          style={vscDarkPlus}
+          showLineNumbers
+          customStyle={{
+            margin: 0,
+            borderRadius: 0,
+            fontSize: "0.85rem",
+            background: "#09090b",
+          }}
+        >
+          {content}
+        </SyntaxHighlighter>
+      </div>
     </div>
   );
 }
 
-const EXTENSION_LANGUAGE: Record<string, string> = {
-  js: "javascript",
-  mjs: "javascript",
-  cjs: "javascript",
-  jsx: "jsx",
-  ts: "typescript",
-  tsx: "tsx",
-  json: "json",
-  xml: "markup",
-  html: "markup",
-  htm: "markup",
-  css: "css",
-  yml: "yaml",
-  yaml: "yaml",
-  py: "python",
-  go: "go",
-  rs: "rust",
-  java: "java",
-  c: "c",
-  h: "c",
-  cpp: "cpp",
-  hpp: "cpp",
-  cs: "csharp",
-  php: "php",
-  rb: "ruby",
-  sh: "bash",
-  bash: "bash",
-  zsh: "bash",
-  sql: "sql",
-  toml: "toml",
-  ini: "ini",
-  env: "ini",
-  md: "markdown",
-  csv: "csv",
-  log: "text",
-  txt: "text",
-};
-
-function languageFromExtension(extension: string | null, mimeType: string): string | undefined {
-  const ext = (extension ?? "").replace(/^\./, "").toLowerCase();
-  if (EXTENSION_LANGUAGE[ext]) return EXTENSION_LANGUAGE[ext];
-
-  if (mimeType.includes("javascript")) return "javascript";
-  if (mimeType.includes("typescript")) return "typescript";
-  if (mimeType.includes("json")) return "json";
-  if (mimeType.includes("xml") || mimeType === "text/html") return "markup";
-  if (mimeType.includes("css")) return "css";
-  if (mimeType.includes("yaml")) return "yaml";
-  if (mimeType.includes("python")) return "python";
-  if (mimeType.includes("sql")) return "sql";
-  if (mimeType.includes("bash") || mimeType.includes("shellscript")) return "bash";
-
-  return undefined;
+function detectLanguage(ext: string, mime: string): string {
+  const map: Record<string, string> = {
+    js: "javascript",
+    jsx: "jsx",
+    ts: "typescript",
+    tsx: "tsx",
+    py: "python",
+    json: "json",
+    html: "html",
+    css: "css",
+    scss: "scss",
+    sql: "sql",
+    sh: "bash",
+    bash: "bash",
+    yml: "yaml",
+    yaml: "yaml",
+    xml: "xml",
+    java: "java",
+    c: "c",
+    cpp: "cpp",
+    cs: "csharp",
+    go: "go",
+    rs: "rust",
+    php: "php",
+    rb: "ruby",
+  };
+  return map[ext] || mime.split("/")[1] || "text";
 }
-
-const MIN_SCALE = 1;
-const MAX_SCALE = 5;
 
 function ZoomableImage({ src, alt }: { src: string; alt: string }) {
   const [scale, setScale] = useState(1);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [panning, setPanning] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef({ startX: 0, startY: 0, px: 0, py: 0 });
-  const posRef = useRef(pos);
-
-  useEffect(() => {
-    posRef.current = pos;
-  }, [pos]);
-
-  function clampScale(n: number) {
-    return Math.min(MAX_SCALE, Math.max(MIN_SCALE, +(n * 100).toFixed(0) / 100));
-  }
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    function onWheel(e: WheelEvent) {
-      e.preventDefault();
-      setScale((current) => {
-        const next = clampScale(e.deltaY < 0 ? current * 1.15 : current / 1.15);
-        if (next <= 1 && current > 1) setPos({ x: 0, y: 0 });
-        return next;
-      });
-    }
-
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, []);
-
-  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
-    if (scale <= 1) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    setPanning(true);
-    dragRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      px: posRef.current.x,
-      py: posRef.current.y,
-    };
-  }
-
-  function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
-    if (!panning) return;
-    const dx = e.clientX - dragRef.current.startX;
-    const dy = e.clientY - dragRef.current.startY;
-    setPos({ x: dragRef.current.px + dx, y: dragRef.current.py + dy });
-  }
-
-  function onPointerUp(e: React.PointerEvent<HTMLDivElement>) {
-    setPanning(false);
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    }
-  }
+  const startRef = useRef({ x: 0, y: 0 });
 
   function zoomIn() {
-    setScale((current) => {
-      const next = clampScale(current * 1.2);
-      if (next <= 1) setPos({ x: 0, y: 0 });
-      return next;
-    });
+    setScale((s) => Math.min(s * 1.3, 5));
   }
 
   function zoomOut() {
-    setScale((current) => {
-      const next = clampScale(current / 1.2);
-      if (next <= 1) setPos({ x: 0, y: 0 });
+    setScale((s) => {
+      const next = s / 1.3;
+      if (next <= 1) {
+        setPos({ x: 0, y: 0 });
+        return 1;
+      }
       return next;
     });
   }
@@ -275,49 +230,71 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
     setPos({ x: 0, y: 0 });
   }
 
+  function onPointerDown(e: React.PointerEvent) {
+    if (scale <= 1) return;
+    setPanning(true);
+    startRef.current = { x: e.clientX - pos.x, y: e.clientY - pos.y };
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    if (!panning) return;
+    setPos({ x: e.clientX - startRef.current.x, y: e.clientY - startRef.current.y });
+  }
+
+  function onPointerUp(e: React.PointerEvent) {
+    if (!panning) return;
+    setPanning(false);
+    (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
+  }
+
   function onDoubleClick() {
     if (scale > 1) {
       reset();
     } else {
-      zoomIn();
+      setScale(2);
     }
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="relative flex h-full w-full touch-none items-center justify-center overflow-hidden"
-    >
-      <div className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-lg border border-white/10 bg-black/60 px-1.5 py-1 text-white backdrop-blur">
+    <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
+      {/* Floating Zoom Controls */}
+      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-white/10 bg-zinc-900/90 px-3 py-1.5 text-white shadow-xl backdrop-blur-md">
         <button
           type="button"
           onClick={zoomOut}
+          disabled={scale <= 1}
           aria-label="Perkecil"
-          className="rounded-md p-1.5 hover:bg-white/10"
+          className="rounded-lg p-1.5 transition-colors hover:bg-white/10 disabled:opacity-30"
         >
-          <ZoomOut className="h-4 w-4" />
+          <ZoomOut className="size-4" />
         </button>
         <button
           type="button"
           onClick={zoomIn}
+          disabled={scale >= 5}
           aria-label="Perbesar"
-          className="rounded-md p-1.5 hover:bg-white/10"
+          className="rounded-lg p-1.5 transition-colors hover:bg-white/10 disabled:opacity-30"
         >
-          <ZoomIn className="h-4 w-4" />
+          <ZoomIn className="size-4" />
         </button>
         <button
           type="button"
           onClick={reset}
           aria-label="Reset zoom"
-          className="rounded-md p-1.5 hover:bg-white/10"
+          className="rounded-lg p-1.5 transition-colors hover:bg-white/10"
         >
-          <RotateCcw className="h-4 w-4" />
+          <RotateCcw className="size-4" />
         </button>
-        <span className="w-10 text-center text-xs tabular-nums">{Math.round(scale * 100)}%</span>
+        <span className="w-12 text-center font-mono text-xs tabular-nums">
+          {Math.round(scale * 100)}%
+        </span>
       </div>
 
       <div
-        className={`select-none ${scale > 1 ? (panning ? "cursor-grabbing" : "cursor-grab") : "cursor-default"}`}
+        className={`select-none ${
+          scale > 1 ? (panning ? "cursor-grabbing" : "cursor-grab") : "cursor-default"
+        }`}
         style={{
           transform: `translate(${pos.x}px, ${pos.y}px) scale(${scale})`,
           transition: panning ? undefined : "transform 100ms ease-out",
@@ -333,7 +310,7 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
           src={src}
           alt={alt}
           draggable={false}
-          className="max-h-[75vh] max-w-[80vw] object-contain"
+          className="max-h-[75vh] max-w-[85vw] object-contain"
         />
       </div>
     </div>
@@ -342,15 +319,15 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
 
 function Unsupported({ file }: { file: DriveFile }) {
   return (
-    <div className="flex flex-col items-center gap-3 text-center">
-      <p className="text-sm text-zinc-400">Pratinjau tidak tersedia untuk format ini.</p>
+    <div className="flex flex-col items-center gap-3 p-8 text-center">
+      <p className="text-sm text-zinc-400">Pratinjau tidak tersedia untuk jenis berkas ini.</p>
       <button
         type="button"
         onClick={() => api.downloadFile(file.id)}
-        className="flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-200"
+        className="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-zinc-900 transition-colors hover:bg-zinc-200"
       >
-        <Download className="h-4 w-4" />
-        Unduh file
+        <Download className="size-4" />
+        Unduh Berkas
       </button>
     </div>
   );
@@ -358,15 +335,15 @@ function Unsupported({ file }: { file: DriveFile }) {
 
 function ErrorState({ message, onDownload }: { message: string; onDownload: () => void }) {
   return (
-    <div className="flex flex-col items-center gap-3 text-center">
+    <div className="flex flex-col items-center gap-3 p-8 text-center">
       <p className="text-sm text-red-400">{message}</p>
       <button
         type="button"
         onClick={onDownload}
-        className="flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-200"
+        className="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-zinc-900 transition-colors hover:bg-zinc-200"
       >
-        <Download className="h-4 w-4" />
-        Unduh file
+        <Download className="size-4" />
+        Unduh Berkas
       </button>
     </div>
   );

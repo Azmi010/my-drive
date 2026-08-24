@@ -38,7 +38,9 @@ export function ContextMenu({
       if (e.key === "Escape") onClose();
     }
     function onDown(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        onClose();
+      }
     }
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onDown);
@@ -51,15 +53,24 @@ export function ContextMenu({
   const isFolder = item.type === "folder";
   const starred = item.data.starred;
 
-  const menuX = Math.min(x, window.innerWidth - 220);
-  const menuY = Math.min(y, window.innerHeight - 240);
+  // Ensure menu stays within window bounds on desktop & mobile
+  const menuWidth = 220;
+  const menuHeight = 280;
+  const menuX = Math.max(
+    12,
+    Math.min(x, (typeof window !== "undefined" ? window.innerWidth : 1000) - menuWidth - 12),
+  );
+  const menuY = Math.max(
+    12,
+    Math.min(y, (typeof window !== "undefined" ? window.innerHeight : 800) - menuHeight - 12),
+  );
 
   const items: { label: string; icon: React.ReactNode; danger?: boolean; onClick: () => void }[] =
     mode === "trash"
       ? [
           {
-            label: isFolder ? "Buka" : "Pratinjau",
-            icon: isFolder ? <FolderOpen className="h-4 w-4" /> : <Eye className="h-4 w-4" />,
+            label: isFolder ? "Buka Folder" : "Pratinjau File",
+            icon: isFolder ? <FolderOpen className="size-4" /> : <Eye className="size-4" />,
             onClick: () => {
               actions.onOpen(item);
               onClose();
@@ -69,7 +80,7 @@ export function ContextMenu({
             ? [
                 {
                   label: "Pulihkan",
-                  icon: <RotateCcw className="h-4 w-4" />,
+                  icon: <RotateCcw className="size-4 text-emerald-500" />,
                   onClick: () => {
                     actions.onRestore?.(item);
                     onClose();
@@ -78,9 +89,9 @@ export function ContextMenu({
               ]
             : []),
           {
-            label: "Hapus permanen",
+            label: "Hapus Permanen",
             danger: true,
-            icon: <Trash2 className="h-4 w-4" />,
+            icon: <Trash2 className="size-4" />,
             onClick: () => {
               actions.onDelete(item);
               onClose();
@@ -89,24 +100,24 @@ export function ContextMenu({
         ]
       : [
           {
-            label: isFolder ? "Buka" : "Pratinjau",
-            icon: isFolder ? <FolderOpen className="h-4 w-4" /> : <Eye className="h-4 w-4" />,
+            label: isFolder ? "Buka Folder" : "Pratinjau File",
+            icon: isFolder ? <FolderOpen className="size-4" /> : <Eye className="size-4" />,
             onClick: () => {
               actions.onOpen(item);
               onClose();
             },
           },
           {
-            label: starred ? "Batal tandai" : "Tandai",
-            icon: <Star className="h-4 w-4" fill={starred ? "currentColor" : "none"} />,
+            label: starred ? "Batal Berbintang" : "Tandai Bintang",
+            icon: <Star className={`size-4 ${starred ? "fill-amber-400 text-amber-400" : ""}`} />,
             onClick: () => {
               actions.onStar(item);
               onClose();
             },
           },
           {
-            label: "Ganti nama",
-            icon: <Pencil className="h-4 w-4" />,
+            label: "Ganti Nama",
+            icon: <Pencil className="size-4" />,
             onClick: () => {
               actions.onRename(item);
               onClose();
@@ -114,7 +125,7 @@ export function ContextMenu({
           },
           {
             label: "Pindahkan ke...",
-            icon: <Move className="h-4 w-4" />,
+            icon: <Move className="size-4" />,
             onClick: () => {
               actions.onMove(item);
               onClose();
@@ -123,8 +134,8 @@ export function ContextMenu({
           ...(actions.onDownload && !isFolder
             ? [
                 {
-                  label: "Unduh",
-                  icon: <Download className="h-4 w-4" />,
+                  label: "Unduh File",
+                  icon: <Download className="size-4 text-blue-500" />,
                   onClick: () => {
                     actions.onDownload?.(item);
                     onClose();
@@ -135,7 +146,7 @@ export function ContextMenu({
           {
             label: "Hapus",
             danger: true,
-            icon: <Trash2 className="h-4 w-4" />,
+            icon: <Trash2 className="size-4" />,
             onClick: () => {
               actions.onDelete(item);
               onClose();
@@ -144,27 +155,42 @@ export function ContextMenu({
         ];
 
   return (
-    <div
-      ref={ref}
-      className="fixed z-50 w-52 rounded-lg border border-zinc-200 bg-white py-1 shadow-xl dark:border-zinc-800 dark:bg-zinc-950"
-      style={{ left: menuX, top: menuY }}
-    >
-      <p className="truncate border-b border-zinc-100 px-3 py-2 text-xs text-zinc-500 dark:border-zinc-800">
-        {item.data.name}
-      </p>
-      {items.map((entry) => (
-        <button
-          key={entry.label}
-          type="button"
-          onClick={entry.onClick}
-          className={`flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
-            entry.danger ? "text-red-600 dark:text-red-400" : ""
-          }`}
-        >
-          {entry.icon}
-          {entry.label}
-        </button>
-      ))}
-    </div>
+    <>
+      {/* Invisible backdrop for touch / mobile dismiss */}
+      <div
+        className="fixed inset-0 z-50 bg-black/10 backdrop-blur-2xs"
+        onClick={onClose}
+        onTouchStart={onClose}
+      />
+      <div
+        ref={ref}
+        className="fixed z-50 w-56 rounded-2xl border border-zinc-200/90 bg-white/95 p-1.5 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 duration-150 dark:border-zinc-800/90 dark:bg-zinc-950/95"
+        style={{ left: menuX, top: menuY }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="border-b border-zinc-100 px-3 py-2 dark:border-zinc-800/70">
+          <p className="truncate text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+            {item.data.name}
+          </p>
+        </div>
+        <div className="mt-1 space-y-0.5">
+          {items.map((entry) => (
+            <button
+              key={entry.label}
+              type="button"
+              onClick={entry.onClick}
+              className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium transition-colors ${
+                entry.danger
+                  ? "text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
+                  : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/80"
+              }`}
+            >
+              {entry.icon}
+              <span>{entry.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
