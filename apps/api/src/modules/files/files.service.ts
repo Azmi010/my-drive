@@ -5,16 +5,16 @@ import {
   PayloadTooLargeException,
 } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
+import * as fs from "node:fs";
 import * as path from "node:path";
 import type { Prisma } from "@prisma/client";
 
 import { PrismaService } from "../../prisma/prisma.service";
 import { MinioService } from "../storage/minio.service";
 import { isTextMime, previewKind, resolveMimeType } from "../../common/utils/mime-types";
+import { TEXT_PREVIEW_MAX_BYTES } from "@mydrive/shared";
 import type { UpdateFileDto } from "./dto/update-file.dto";
 import type { ListFilesQueryDto } from "./dto/list-files.dto";
-
-const TEXT_PREVIEW_MAX_BYTES = 5 * 1024 * 1024;
 
 @Injectable()
 export class FilesService {
@@ -46,30 +46,34 @@ export class FilesService {
   }
 
   async upload(userId: string, file: Express.Multer.File, folderId?: string) {
-    const parentFolderId = folderId?.trim() || null;
+    try {
+      const parentFolderId = folderId?.trim() || null;
 
-    if (parentFolderId) {
-      await this.assertFolderOwned(userId, parentFolderId);
+      if (parentFolderId) {
+        await this.assertFolderOwned(userId, parentFolderId);
+      }
+
+      const extension = path.extname(file.originalname) || null;
+      const storageKey = `users/${userId}/${randomUUID()}${extension ?? ""}`;
+
+      await this.minio.putObject(storageKey, fs.createReadStream(file.path), file.size, {
+        "Content-Type": file.mimetype,
+      });
+
+      return await this.prisma.file.create({
+        data: {
+          name: file.originalname,
+          mimeType: file.mimetype,
+          size: BigInt(file.size),
+          storageKey,
+          extension,
+          parentFolderId,
+          ownerId: userId,
+        },
+      });
+    } finally {
+      await fs.promises.rm(file.path, { force: true }).catch(() => undefined);
     }
-
-    const extension = path.extname(file.originalname) || null;
-    const storageKey = `users/${userId}/${randomUUID()}${extension ?? ""}`;
-
-    await this.minio.putObject(storageKey, file.buffer, file.size, {
-      "Content-Type": file.mimetype,
-    });
-
-    return this.prisma.file.create({
-      data: {
-        name: file.originalname,
-        mimeType: file.mimetype,
-        size: BigInt(file.size),
-        storageKey,
-        extension,
-        parentFolderId,
-        ownerId: userId,
-      },
-    });
   }
 
   private async assertFileOwned(userId: string, fileId: string) {

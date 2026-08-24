@@ -10,16 +10,23 @@ import {
   Query,
   Res,
   UploadedFile,
+  UseFilters,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import { randomUUID } from "node:crypto";
+import * as path from "node:path";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import type { Response } from "express";
 
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CurrentUser } from "../auth/current-user.decorator";
 import type { AuthUser } from "../auth/interfaces/auth-user.interface";
+import { MAX_FILE_SIZE_BYTES } from "@mydrive/shared";
+import { UploadExceptionFilter } from "../../common/filters/upload-exception.filter";
+import { UPLOAD_TMP_DIR } from "../../common/utils/upload-tmp";
 import { FilesService } from "./files.service";
 import { ListFilesQueryDto } from "./dto/list-files.dto";
 import { UpdateFileDto } from "./dto/update-file.dto";
@@ -49,7 +56,16 @@ export class FilesController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor("file"))
+  @UseInterceptors(
+    FileInterceptor("file", {
+      storage: diskStorage({
+        destination: UPLOAD_TMP_DIR,
+        filename: (_req, file, cb) => cb(null, `${randomUUID()}${path.extname(file.originalname)}`),
+      }),
+      limits: { fileSize: MAX_FILE_SIZE_BYTES },
+    }),
+  )
+  @UseFilters(UploadExceptionFilter)
   upload(
     @CurrentUser() user: AuthUser,
     @UploadedFile() file: Express.Multer.File,

@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import type { Readable } from "node:stream";
 import * as Minio from "minio";
 
 @Injectable()
@@ -32,7 +33,12 @@ export class MinioService implements OnModuleInit {
     }
   }
 
-  putObject(key: string, stream: Buffer, size: number, metaData?: Minio.ItemBucketMetadata) {
+  putObject(
+    key: string,
+    stream: Readable | Buffer,
+    size?: number,
+    metaData?: Minio.ItemBucketMetadata,
+  ) {
     return this.client.putObject(this.bucket, key, stream, size, metaData);
   }
 

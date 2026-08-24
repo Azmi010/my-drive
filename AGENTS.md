@@ -175,9 +175,9 @@ my-drive/
 
 ### Phase 11: Shared Package
 
-- [ ] **11.1** Shared types (File, Folder, User interfaces)
-- [ ] **11.2** Shared constants (mime types, file size limits)
-- [ ] **11.3** Shared validation schemas (zod)
+- [x] **11.1** Shared types (File, Folder, User interfaces)
+- [x] **11.2** Shared constants (mime types, file size limits)
+- [x] **11.3** Shared validation schemas (zod)
 
 ---
 
@@ -205,6 +205,9 @@ MINIO_PORT=9000
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
 MINIO_BUCKET=mydrive
+
+# Upload
+UPLOAD_TMP_DIR=  # opsional, default <os tmp>/mydrive-uploads
 
 # App
 NEXT_PUBLIC_API_URL=http://localhost:4000

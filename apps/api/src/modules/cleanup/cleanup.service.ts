@@ -1,8 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 import { PrismaService } from "../../prisma/prisma.service";
 import { MinioService } from "../storage/minio.service";
+import { UPLOAD_TMP_DIR } from "../../common/utils/upload-tmp";
 
 @Injectable()
 export class CleanupService {
@@ -104,6 +107,30 @@ export class CleanupService {
     }
 
     this.logger.log(`Cleanup orphan selesai: ${removed} object dihapus`);
+  }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async cleanupStaleTempUploads() {
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    const entries = await fs.promises.readdir(UPLOAD_TMP_DIR).catch(() => [] as string[]);
+
+    let removed = 0;
+
+    for (const entry of entries) {
+      const filePath = path.join(UPLOAD_TMP_DIR, entry);
+      const stat = await fs.promises.stat(filePath).catch(() => null);
+
+      if (!stat || !stat.isFile() || stat.mtimeMs > cutoff) {
+        continue;
+      }
+
+      await fs.promises.rm(filePath, { force: true }).catch(() => undefined);
+      removed++;
+    }
+
+    if (removed > 0) {
+      this.logger.log(`Purge temp upload selesai: ${removed} file dihapus`);
+    }
   }
 
   private async collectFolderTreeIds(rootId: string): Promise<string[]> {
