@@ -90,7 +90,7 @@ export function FileGrid({ items, view, onOpen, mode = "normal", ...actions }: F
       }}
     >
       {view === "grid" ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {items.map((item) => (
             <DriveItemView
               key={`${item.type}-${item.data.id}`}
@@ -105,14 +105,14 @@ export function FileGrid({ items, view, onOpen, mode = "normal", ...actions }: F
           ))}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-2xs dark:border-zinc-800/80 dark:bg-zinc-950">
-          <div className="flex items-center gap-3 border-b border-zinc-100 bg-zinc-50/50 px-4 py-2.5 text-xs font-medium text-zinc-400 dark:border-zinc-800/60 dark:bg-zinc-900/30">
+        <div className="overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-2xs dark:border-stone-800/80 dark:bg-stone-950">
+          <div className="flex items-center gap-3 border-b border-stone-100 bg-stone-50/50 px-4 py-2.5 text-xs font-medium text-stone-400 dark:border-stone-800/60 dark:bg-stone-900/30">
             <span className="flex-1 pl-9">Nama</span>
             <span className="hidden w-24 text-right sm:block">Ukuran</span>
             <span className="hidden w-28 text-right md:block">Terakhir Diubah</span>
             <span className="w-16" />
           </div>
-          <div className="divide-y divide-zinc-100 p-1 dark:divide-zinc-800/50">
+          <div className="divide-y divide-stone-100 p-1 dark:divide-stone-800/50">
             {items.map((item) => (
               <DriveItemView
                 key={`${item.type}-${item.data.id}`}

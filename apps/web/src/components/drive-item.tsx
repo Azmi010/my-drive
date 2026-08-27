@@ -56,8 +56,10 @@ export function DriveItem({
       <div
         tabIndex={0}
         role="button"
-        className={`group flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 outline-none transition-all hover:bg-zinc-100/80 focus-visible:ring-2 focus-visible:ring-zinc-400 dark:hover:bg-zinc-800/60 dark:focus-visible:ring-zinc-600 ${
-          selected ? "bg-zinc-100 dark:bg-zinc-800/80 ring-1 ring-zinc-300 dark:ring-zinc-700" : ""
+        className={`group flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 outline-none transition-all hover:bg-stone-100/80 focus-visible:ring-2 focus-visible:ring-stone-400 dark:hover:bg-stone-800/60 dark:focus-visible:ring-stone-600 ${
+          selected
+            ? "bg-stone-100 dark:bg-stone-800/80 ring-1 ring-stone-300 dark:ring-stone-700"
+            : ""
         }`}
         onClick={handleClick}
         onDoubleClick={() => onOpen(item)}
@@ -70,13 +72,13 @@ export function DriveItem({
         }}
       >
         <span className="shrink-0">{icon}</span>
-        <span className="min-w-0 flex-1 truncate text-xs font-medium text-zinc-900 dark:text-zinc-100 sm:text-sm">
+        <span className="min-w-0 flex-1 truncate text-xs font-medium text-stone-900 dark:text-stone-100 sm:text-sm">
           {item.data.name}
         </span>
-        <span className="hidden w-24 shrink-0 text-right text-xs text-zinc-400 dark:text-zinc-500 sm:block">
+        <span className="hidden w-24 shrink-0 text-right text-xs text-stone-400 dark:text-stone-500 sm:block">
           {isFolder ? "—" : formatBytes(item.data.size)}
         </span>
-        <span className="hidden w-28 shrink-0 text-right text-xs text-zinc-400 dark:text-zinc-500 md:block">
+        <span className="hidden w-28 shrink-0 text-right text-xs text-stone-400 dark:text-stone-500 md:block">
           {formatDate(item.data.updatedAt)}
         </span>
         <div className="flex items-center gap-1">
@@ -84,7 +86,7 @@ export function DriveItem({
           <button
             type="button"
             onClick={handleTriggerMenu}
-            className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+            className="rounded-lg p-1.5 text-stone-400 hover:bg-stone-200 hover:text-stone-700 dark:hover:bg-stone-700 dark:hover:text-stone-200"
             aria-label="Menu opsi"
           >
             <MoreVertical className="size-4" />
@@ -98,10 +100,10 @@ export function DriveItem({
     <div
       tabIndex={0}
       role="button"
-      className={`group relative flex cursor-pointer flex-col items-center justify-center gap-2.5 rounded-2xl border p-4 text-center outline-none transition-all hover:bg-zinc-100/70 hover:shadow-xs focus-visible:ring-2 focus-visible:ring-zinc-400 dark:hover:bg-zinc-800/50 dark:focus-visible:ring-zinc-600 ${
+      className={`group relative flex cursor-pointer flex-col items-center justify-center gap-2.5 rounded-2xl p-4 text-center outline-none shadow-sm transition-all duration-200 hover:bg-stone-100/70 hover:shadow-md hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-stone-400 dark:hover:bg-stone-800/50 dark:focus-visible:ring-stone-600 ${
         selected
-          ? "border-zinc-300 bg-zinc-100 shadow-xs dark:border-zinc-700 dark:bg-zinc-800/80"
-          : "border-zinc-200/70 bg-white dark:border-zinc-800/60 dark:bg-zinc-950/60"
+          ? "bg-stone-100 ring-1 ring-stone-300 dark:bg-stone-800/80 dark:ring-stone-700"
+          : "bg-white dark:bg-stone-950/60"
       }`}
       onClick={handleClick}
       onDoubleClick={() => onOpen(item)}
@@ -119,7 +121,7 @@ export function DriveItem({
         <button
           type="button"
           onClick={handleTriggerMenu}
-          className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+          className="rounded-lg p-1 text-stone-400 hover:bg-stone-200 hover:text-stone-700 dark:hover:bg-stone-700 dark:hover:text-stone-200"
           aria-label="Menu opsi"
         >
           <MoreVertical className="size-4" />
@@ -128,7 +130,7 @@ export function DriveItem({
 
       <div className="mt-1 flex items-center justify-center">{icon}</div>
 
-      <span className="w-full truncate text-xs font-medium text-zinc-900 dark:text-zinc-100 sm:text-sm">
+      <span className="w-full truncate text-xs font-medium text-stone-900 dark:text-stone-100 sm:text-sm">
         {item.data.name}
       </span>
     </div>
@@ -151,8 +153,8 @@ function StarToggleButton({
         e.stopPropagation();
         onClick(item);
       }}
-      className={`rounded-lg p-1 transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-700 ${
-        starred ? "text-amber-400" : "text-zinc-300 dark:text-zinc-600"
+      className={`rounded-lg p-1 transition-colors hover:bg-stone-200 dark:hover:bg-stone-700 ${
+        starred ? "text-amber-400" : "text-stone-300 dark:text-stone-600"
       }`}
     >
       <Star className="size-4" fill={starred ? "currentColor" : "none"} />

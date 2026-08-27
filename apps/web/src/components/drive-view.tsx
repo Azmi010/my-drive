@@ -275,8 +275,8 @@ export function DriveView({ folderId }: DriveViewProps) {
       onDrop={handleDrop}
     >
       {dragging && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center rounded-2xl border-2 border-dashed border-amber-400 bg-white/80 p-6 backdrop-blur-xs dark:bg-zinc-950/80">
-          <div className="flex flex-col items-center gap-3 text-amber-500">
+        <div className="absolute inset-0 z-30 flex items-center justify-center rounded-2xl border-2 border-dashed border-sky-400 bg-white/80 p-6 backdrop-blur-xs dark:bg-stone-950/80">
+          <div className="flex flex-col items-center gap-3 text-sky-500">
             <Upload className="size-10 animate-bounce" />
             <p className="text-sm font-semibold">Lepaskan file di sini untuk mengupload</p>
           </div>
@@ -284,12 +284,12 @@ export function DriveView({ folderId }: DriveViewProps) {
       )}
 
       {/* Action Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200/80 pb-4 dark:border-zinc-800/80">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/80 pb-4 dark:border-stone-800/80">
         <Breadcrumb folderId={folderId} />
 
         <div className="flex items-center gap-2">
           {/* Grid / List Switcher */}
-          <div className="flex items-center rounded-xl border border-zinc-200/80 bg-zinc-100/80 p-0.5 dark:border-zinc-800 dark:bg-zinc-900/80">
+          <div className="flex items-center rounded-xl border border-stone-200/80 bg-stone-100/80 p-0.5 dark:border-stone-800 dark:bg-stone-900/80">
             <button
               type="button"
               aria-label="Tampilan grid"
@@ -297,8 +297,8 @@ export function DriveView({ folderId }: DriveViewProps) {
               onClick={() => changeView("grid")}
               className={`rounded-lg p-1.5 transition-all ${
                 view === "grid"
-                  ? "bg-white text-zinc-900 shadow-2xs dark:bg-zinc-800 dark:text-zinc-100"
-                  : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                  ? "bg-white text-stone-900 shadow-2xs dark:bg-stone-800 dark:text-stone-100"
+                  : "text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
               }`}
             >
               <LayoutGrid className="size-4" />
@@ -310,8 +310,8 @@ export function DriveView({ folderId }: DriveViewProps) {
               onClick={() => changeView("list")}
               className={`rounded-lg p-1.5 transition-all ${
                 view === "list"
-                  ? "bg-white text-zinc-900 shadow-2xs dark:bg-zinc-800 dark:text-zinc-100"
-                  : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                  ? "bg-white text-stone-900 shadow-2xs dark:bg-stone-800 dark:text-stone-100"
+                  : "text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
               }`}
             >
               <List className="size-4" />
@@ -353,7 +353,7 @@ export function DriveView({ folderId }: DriveViewProps) {
             <button
               type="button"
               onClick={() => void load()}
-              className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-300 dark:hover:bg-stone-800"
             >
               <RefreshCw className="size-3.5" />
               Coba Lagi
@@ -368,7 +368,7 @@ export function DriveView({ folderId }: DriveViewProps) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-200 sm:text-sm"
+                className="flex items-center gap-2 rounded-xl bg-stone-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition-colors hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-950 dark:hover:bg-stone-200 sm:text-sm"
               >
                 <Upload className="size-4" />
                 Upload File Sekarang
@@ -378,9 +378,9 @@ export function DriveView({ folderId }: DriveViewProps) {
               <button
                 type="button"
                 onClick={() => setCreateOpen(true)}
-                className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 sm:text-sm"
+                className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-300 dark:hover:bg-stone-800 sm:text-sm"
               >
-                <FolderPlus className="size-4 text-amber-500" />
+                <FolderPlus className="size-4 text-sky-500" />
                 Buat Folder Baru
               </button>
             }
@@ -470,8 +470,8 @@ function ToolbarButton({
       title={shortcut ? `${label} (${shortcut})` : label}
       className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all sm:text-sm ${
         primary
-          ? "bg-zinc-900 text-white shadow-xs hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-200"
-          : "border border-zinc-200/80 bg-white text-zinc-700 shadow-2xs hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+          ? "bg-stone-900 text-white shadow-xs hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-950 dark:hover:bg-stone-200"
+          : "border border-stone-200/80 bg-white text-stone-700 shadow-2xs hover:bg-stone-50 dark:border-stone-800 dark:bg-stone-900 dark:text-stone-200 dark:hover:bg-stone-800"
       }`}
     >
       <Icon className="size-4" />

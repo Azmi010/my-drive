@@ -164,12 +164,12 @@ export function ContextMenu({
       />
       <div
         ref={ref}
-        className="fixed z-50 w-56 rounded-2xl border border-zinc-200/90 bg-white/95 p-1.5 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 duration-150 dark:border-zinc-800/90 dark:bg-zinc-950/95"
+        className="fixed z-50 w-56 rounded-2xl bg-white/95 p-1.5 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 duration-150 dark:bg-stone-950/95"
         style={{ left: menuX, top: menuY }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="border-b border-zinc-100 px-3 py-2 dark:border-zinc-800/70">
-          <p className="truncate text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+        <div className="border-b border-stone-100 px-3 py-2 dark:border-stone-800/70">
+          <p className="truncate text-xs font-semibold text-stone-900 dark:text-stone-100">
             {item.data.name}
           </p>
         </div>
@@ -182,7 +182,7 @@ export function ContextMenu({
               className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium transition-colors ${
                 entry.danger
                   ? "text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
-                  : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/80"
+                  : "text-stone-700 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800/80"
               }`}
             >
               {entry.icon}

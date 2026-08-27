@@ -69,9 +69,9 @@ const EXTENSION_ICON: Record<string, { icon: LucideIcon; color: string }> = {
   xml: { icon: FileCode, color: "text-indigo-500" },
   yaml: { icon: FileCode, color: "text-indigo-500" },
   yml: { icon: FileCode, color: "text-indigo-500" },
-  md: { icon: FileText, color: "text-zinc-500" },
-  txt: { icon: FileText, color: "text-zinc-500" },
-  log: { icon: FileText, color: "text-zinc-500" },
+  md: { icon: FileText, color: "text-stone-500" },
+  txt: { icon: FileText, color: "text-stone-500" },
+  log: { icon: FileText, color: "text-stone-500" },
   doc: { icon: FileText, color: "text-blue-500" },
   docx: { icon: FileText, color: "text-blue-500" },
 };
@@ -92,9 +92,9 @@ export function fileKind(file: DriveFile): { icon: LucideIcon; color: string } {
   if (file.mimeType.startsWith("image/")) return { icon: FileImage, color: "text-sky-500" };
   if (file.mimeType.startsWith("video/")) return { icon: FileVideoCamera, color: "text-rose-500" };
   if (file.mimeType.startsWith("audio/")) return { icon: FileMusic, color: "text-emerald-500" };
-  if (file.mimeType.startsWith("text/")) return { icon: FileText, color: "text-zinc-500" };
+  if (file.mimeType.startsWith("text/")) return { icon: FileText, color: "text-stone-500" };
 
-  return { icon: File, color: "text-zinc-400" };
+  return { icon: File, color: "text-stone-400" };
 }
 
 export function FileTypeIcon({ file, className }: { file: DriveFile; className?: string }) {
