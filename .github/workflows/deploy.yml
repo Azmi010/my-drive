@@ -1,0 +1,32 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install cloudflared
+        run: |
+          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared
+          chmod +x /usr/local/bin/cloudflared
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          cat > ~/.ssh/config << EOF
+          Host ulul-server
+            HostName ssh.ulul-server.my.id
+            User ulul01
+            IdentityFile ~/.ssh/deploy_key
+            ProxyCommand cloudflared access ssh --hostname ssh.ulul-server.my.id
+            StrictHostKeyChecking no
+          EOF
+
+      - name: Deploy
+        run: |
+          ssh ulul-server "bash /home/ulul01/deploy.sh"
